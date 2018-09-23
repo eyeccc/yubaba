@@ -98,7 +98,6 @@ export default class FadeMove extends React.Component<FadeMoveProps> {
       });
 
     requestAnimationFrame(onFinish);
-
     return this.renderAnimation(false);
   };
 

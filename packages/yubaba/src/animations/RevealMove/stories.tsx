@@ -78,9 +78,7 @@ const build = (width: number, height: number, orientation: Orientation) => (
       <React.Fragment>
         {shown || (
           <Baba name={`reveal-move-${orientation}`}>
-            <RevealMove
-              skipInitialTransformOffset={orientation === 'both' || orientation === 'horizontal'}
-            >
+            <RevealMove>
               {baba => (
                 <ListItem
                   onClick={() => toggle()}
