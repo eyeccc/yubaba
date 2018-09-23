@@ -52,8 +52,8 @@ export default class Move extends React.Component<MoveProps> {
   renderAnimation: (opts: { start: boolean; onFinish: () => void }) => React.ReactElement<{}>;
 
   beforeAnimate: AnimationCallback = (data, onFinish, setTargetProps) => {
-    // Scroll could have changed between unmount and this prepare step, let's recalculate
-    // just in case.
+    // Scroll could have changed between unmount and this prepare step,
+    // let's recalculate just in case.
     const fromTargetSizeLocation = recalculateLocationFromScroll(data.fromTarget);
     const toStartXOffset = fromTargetSizeLocation.location.left - data.toTarget.location.left;
     const toStartYOffset = fromTargetSizeLocation.location.top - data.toTarget.location.top;

@@ -1,6 +1,6 @@
 import { storiesOf } from '@storybook/react';
 import Baba from '../../Baba';
-import Move from '../FLIPMove';
+import Move from './index';
 import { createMoveExamples } from 'yubaba-common';
 
 const Examples = createMoveExamples({
