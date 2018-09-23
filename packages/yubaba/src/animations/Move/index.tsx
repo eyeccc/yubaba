@@ -9,7 +9,7 @@ import * as math from '../../lib/math';
 import { recalculateLocationFromScroll } from '../../lib/dom';
 import { standard } from '../../lib/curves';
 
-export interface FLIPMoveProps extends CollectorChildrenProps {
+export interface MoveProps extends CollectorChildrenProps {
   /**
    * How long the animation should take over {duration}ms.
    */
@@ -32,9 +32,9 @@ export interface FLIPMoveProps extends CollectorChildrenProps {
 }
 
 /**
- * ## FLIPMove
+ * ## Move
  *
- * FLIPMove will animate the end target from the start target, to the end position.
+ * Move will animate the end target from the start target, to the end position.
  * It will match both size and position of the start target.
  *
  * Note that it will not fade between elements, so this animation really only looks good
@@ -43,7 +43,7 @@ export interface FLIPMoveProps extends CollectorChildrenProps {
  * If you want to transition distinct elements I'd suggestion using CrossFadeMove, however
  * it is slightly more expensive to animate.
  */
-export default class FLIPMove extends React.Component<FLIPMoveProps> {
+export default class Move extends React.Component<MoveProps> {
   static defaultProps = {
     duration: 500,
     timingFunction: standard(),

@@ -1,12 +1,12 @@
 import { storiesOf } from '@storybook/react';
 import Baba from '../../Baba';
-import CrossFadeMove from './index';
+import FadeMove from './index';
 import { createMoveExamples } from 'yubaba-common';
 
-const Examples = createMoveExamples({ namePrefix: 'CrossFadeMove', useDistinctEnd: true })(
+const Examples = createMoveExamples({ namePrefix: 'FadeMove', useDistinctEnd: true })(
   Baba,
-  CrossFadeMove
+  FadeMove
 );
 
-const stories = storiesOf('yubaba/CrossFadeMove', module);
+const stories = storiesOf('yubaba/FadeMove', module);
 Object.keys(Examples).forEach(key => stories.add(key, Examples[key]));
