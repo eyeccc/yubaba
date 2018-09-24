@@ -2,7 +2,6 @@ import * as React from 'react';
 import Collector, {
   CollectorChildrenProps,
   AnimationCallback,
-  CollectorData,
   CollectorActions,
 } from '../../Collector';
 import * as math from '../../lib/math';
@@ -13,7 +12,7 @@ export interface MoveProps extends CollectorChildrenProps {
   /**
    * How long the animation should take over {duration}ms.
    */
-  duration?: number;
+  duration: number;
 
   /**
    * Delays the animation from starting for {delay}ms.
@@ -23,12 +22,12 @@ export interface MoveProps extends CollectorChildrenProps {
   /**
    * zIndex to be applied to the moving element.
    */
-  zIndex?: number;
+  zIndex: number;
 
   /**
    * Timing function to be used in the transition, see: https://developer.mozilla.org/en-US/docs/Web/CSS/animation-timing-function
    */
-  timingFunction?: string;
+  timingFunction: string;
 }
 
 /**
@@ -49,19 +48,15 @@ export default class Move extends React.Component<MoveProps> {
     timingFunction: standard(),
   };
 
-  renderAnimation: (opts: { start: boolean; onFinish: () => void }) => React.ReactElement<{}>;
-
   beforeAnimate: AnimationCallback = (data, onFinish, setTargetProps) => {
-    // Scroll could have changed between unmount and this prepare step,
-    // let's recalculate just in case.
+    const { duration, zIndex, timingFunction } = this.props;
+    // Scroll could have changed between unmount and this prepare step.
     const fromTargetSizeLocation = recalculateLocationFromScroll(data.fromTarget);
     const toStartXOffset = fromTargetSizeLocation.location.left - data.toTarget.location.left;
     const toStartYOffset = fromTargetSizeLocation.location.top - data.toTarget.location.top;
-    const duration = this.props.duration as number;
-    const { timingFunction } = this.props;
 
     const style = {
-      zIndex: this.props.zIndex || 10001,
+      zIndex,
       opacity: 1,
       transformOrigin: '0 0',
       visibility: 'visible',
@@ -88,30 +83,38 @@ export default class Move extends React.Component<MoveProps> {
           },
         });
 
-        requestAnimationFrame(onFinish);
+        onFinish();
       });
     });
   };
 
   animate: AnimationCallback = (_, onFinish, setTargetProps) => {
+    const { duration } = this.props;
+
     setTargetProps({
       style: {
         transform: 'translate3d(0, 0, 0) scale3d(1, 1, 1)',
       },
     });
 
-    setTimeout(() => onFinish(), this.props.duration);
+    setTimeout(() => onFinish(), duration);
   };
 
   render() {
-    const data: CollectorData = {
-      action: CollectorActions.animation,
-      payload: {
-        beforeAnimate: this.beforeAnimate,
-        animate: this.animate,
-      },
-    };
+    const { children } = this.props;
 
-    return <Collector data={data}>{this.props.children}</Collector>;
+    return (
+      <Collector
+        data={{
+          action: CollectorActions.animation,
+          payload: {
+            beforeAnimate: this.beforeAnimate,
+            animate: this.animate,
+          },
+        }}
+      >
+        {children}
+      </Collector>
+    );
   }
 }

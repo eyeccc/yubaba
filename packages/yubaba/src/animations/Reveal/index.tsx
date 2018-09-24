@@ -3,7 +3,6 @@ import { css } from 'emotion';
 import Collector, {
   CollectorChildrenProps,
   AnimationCallback,
-  CollectorData,
   CollectorActions,
 } from '../../Collector';
 import { standard } from '../../lib/curves';
@@ -12,7 +11,7 @@ export interface RevealProps extends CollectorChildrenProps {
   /**
    * How long the animation should take over {duration}ms.
    */
-  duration?: number;
+  duration: number;
 
   /**
    * Delays the animation from starting for {delay}ms.
@@ -27,7 +26,7 @@ export interface RevealProps extends CollectorChildrenProps {
   /**
    * Timing function to be used in the transition, see: https://developer.mozilla.org/en-US/docs/Web/CSS/animation-timing-function
    */
-  timingFunction?: string;
+  timingFunction: string;
 }
 
 /**
@@ -43,28 +42,23 @@ export default class Reveal extends React.Component<RevealProps> {
     timingFunction: standard(),
   };
 
-  renderAnimation: (opts: { start: boolean; onFinish: () => void }) => React.ReactElement<{}>;
-
   beforeAnimate: AnimationCallback = (data, onFinish, setTargetProps) => {
     if (!data.toTarget.targetDOMData) {
       throw new Error(`yubaba
 targetElement was missing.`);
     }
 
-    const duration = this.props.duration as number;
-    const { timingFunction } = this.props;
-
-    const style = {
-      opacity: 1,
-      visibility: 'visible',
-      willChange: 'height, width',
-      height: data.toTarget.targetDOMData.size.height,
-      width: data.toTarget.targetDOMData.size.width,
-      overflow: 'hidden',
-    };
+    const { timingFunction, duration } = this.props;
 
     setTargetProps({
-      style,
+      style: {
+        opacity: 1,
+        visibility: 'visible',
+        willChange: 'height, width',
+        height: data.toTarget.targetDOMData.size.height,
+        width: data.toTarget.targetDOMData.size.width,
+        overflow: 'hidden',
+      },
       className: css`
         > * {
           transform: translate3d(
@@ -105,8 +99,7 @@ targetElement was missing.`);
   };
 
   animate: AnimationCallback = (data, onFinish, setTargetProps) => {
-    const duration = this.props.duration as number;
-    const { timingFunction } = this.props;
+    const { timingFunction, duration } = this.props;
 
     setTargetProps({
       style: {
@@ -121,18 +114,24 @@ targetElement was missing.`);
       `,
     });
 
-    setTimeout(() => onFinish(), this.props.duration);
+    setTimeout(() => onFinish(), duration);
   };
 
   render() {
-    const data: CollectorData = {
-      action: CollectorActions.animation,
-      payload: {
-        beforeAnimate: this.beforeAnimate,
-        animate: this.animate,
-      },
-    };
+    const { children } = this.props;
 
-    return <Collector data={data}>{this.props.children}</Collector>;
+    return (
+      <Collector
+        data={{
+          action: CollectorActions.animation,
+          payload: {
+            beforeAnimate: this.beforeAnimate,
+            animate: this.animate,
+          },
+        }}
+      >
+        {children}
+      </Collector>
+    );
   }
 }

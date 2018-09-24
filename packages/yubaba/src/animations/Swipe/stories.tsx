@@ -7,7 +7,7 @@ import * as Common from 'yubaba-common';
 const Root = styled.div`
   width: 100px;
   height: 100px;
-  background: #db6f59;
+  background: #f8b88b;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -30,7 +30,7 @@ const makeStory = (direction: string) => (
         {!shown ? (
           <Container>
             <Baba name={`swipe-${direction}`} key="1">
-              <Swipe background="#db6f59" direction={direction as any}>
+              <Swipe background="#f8b88b" direction={direction as any}>
                 {({ ref, style }) => <Root style={style} innerRef={ref} />}
               </Swipe>
             </Baba>
