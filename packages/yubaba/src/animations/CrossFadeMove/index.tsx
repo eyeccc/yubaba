@@ -1,8 +1,8 @@
 import * as React from 'react';
-import FadeMove from '../FadeMove';
-import Move from '../Move';
+import FadeMove, { FadeMoveProps } from '../FadeMove';
+import Move, { MoveProps } from '../Move';
 
-export default class CrossFadeMove extends React.Component<any> {
+export default class CrossFadeMove extends React.Component<FadeMoveProps & MoveProps> {
   render() {
     const { children, ...props } = this.props;
     return (

@@ -52,7 +52,7 @@ export default class FadeMove extends React.Component<FadeMoveProps> {
 
   renderAnimation: (start: boolean) => React.ReactNode;
 
-  beforeAnimate: AnimationCallback = (data, onFinish, setTargetProps) => {
+  beforeAnimate: AnimationCallback = (data, onFinish) => {
     // Scroll could have changed between unmount and this prepare step, let's recalculate
     // just in case.
     const fromTargetSizeLocation = recalculateLocationFromScroll(data.fromTarget);
