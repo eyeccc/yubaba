@@ -6,7 +6,6 @@
   "license": "MIT",
   "main": "dist/cjs/packages/yubaba/src/index.js",
   "module": "dist/es6/packages/yubaba/src/index.js",
-  "sideEffects": false,
   "scripts": {
     "build": "rm -rf dist && tsc -p ./tsconfig.cjs.json && tsc -p ./tsconfig.es6.json && cp ../../README.md README.md"
   },

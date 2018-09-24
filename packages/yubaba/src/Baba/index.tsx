@@ -16,6 +16,7 @@ import Collector, {
 } from '../Collector';
 import { getElementSizeLocation } from '../lib/dom';
 import defer from '../lib/defer';
+import noop from '../lib/noop';
 import * as childrenStore from '../lib/childrenStore';
 import { InjectedProps, withBabaManagerContext } from '../BabaManager';
 
@@ -74,7 +75,7 @@ export interface BabaProps extends CollectorChildrenProps, InjectedProps {
    * Callback called when all animations have finished and been cleaned up. Fired from the triggering Baba
    * component.
    */
-  onFinish?: () => void;
+  onFinish: () => void;
 }
 
 /**
@@ -114,18 +115,29 @@ export interface BabaProps extends CollectorChildrenProps, InjectedProps {
 export class Baba extends React.PureComponent<BabaProps, State> {
   static displayName = 'Baba';
 
+  static defaultProps = {
+    onFinish: noop,
+  };
+
   state: State = {
     shown: false,
     childProps: {},
   };
 
   TIME_TO_WAIT_FOR_NEXT_BABA = 50;
+
   animating: boolean = false;
+
   unmounting: boolean = false;
+
   containerElement: HTMLElement | null;
+
   targetElement: HTMLElement | null;
+
   renderChildren: CollectorChildrenAsFunction;
+
   data: CollectorData[];
+
   abortAnimations: () => void = () => undefined;
 
   componentDidMount() {
@@ -144,6 +156,42 @@ export class Baba extends React.PureComponent<BabaProps, State> {
     }
   }
 
+  componentWillUpdate(prevProps: BabaProps) {
+    const { in: isIn } = this.props;
+    if (prevProps.in === false && isIn === true) {
+      // We're being removed from "in". Let's recalculate our DOM position.
+      this.storeDOMData();
+      this.delayedClearDOMData();
+      this.abortAnimations();
+    }
+  }
+
+  componentDidUpdate(prevProps: BabaProps) {
+    const { in: isIn, name } = this.props;
+
+    if (isIn === prevProps.in) {
+      // Nothing has changed, return early.
+      return;
+    }
+
+    if (
+      process.env.NODE_ENV === 'development' &&
+      (isIn === undefined || prevProps.in === undefined)
+    ) {
+      console.warn(`yubaba
+You're switching between controlled and uncontrolled, don't do this. Either always set the "in" prop as true or false, or keep as undefined.`);
+    }
+
+    if (isIn) {
+      if (childrenStore.has(name)) {
+        this.executeAnimations();
+        return;
+      }
+
+      this.showSelfAndNotifyManager();
+    }
+  }
+
   componentWillUnmount() {
     this.storeDOMData();
     this.delayedClearDOMData();
@@ -151,57 +199,24 @@ export class Baba extends React.PureComponent<BabaProps, State> {
     this.unmounting = true;
   }
 
-  componentWillUpdate(prevProps: BabaProps) {
-    if (prevProps.in === false && this.props.in === true) {
-      // We're being removed from "in". Let's recalculate our DOM position.
-      this.storeDOMData();
-      this.delayedClearDOMData();
-      this.abortAnimations();
-      return;
-    }
-  }
-
-  componentDidUpdate(prevProps: BabaProps) {
-    if (this.props.in === prevProps.in) {
-      // Nothing has changed, return early.
-      return;
-    }
-
-    if (
-      process.env.NODE_ENV === 'development' &&
-      (this.props.in === undefined || prevProps.in === undefined)
-    ) {
-      console.warn(`yubaba
-You're switching between controlled and uncontrolled, don't do this. Either always set the "in" prop as true or false, or keep as undefined.`);
-    }
-
-    if (this.props.in) {
-      if (childrenStore.has(this.props.name)) {
-        this.executeAnimations();
-        return;
-      }
-
-      this.showSelfAndNotifyManager();
-      return;
-    }
-  }
-
   showSelfAndNotifyManager() {
+    const { context, name } = this.props;
+
     this.setState({
       shown: true,
     });
 
     // If a BabaManager is a parent up the tree context will be available.
     // Notify them that we're finished getting ready.
-    if (this.props.context) {
-      this.props.context.onFinish({ name: this.props.name });
+    if (context) {
+      context.onFinish({ name });
     }
   }
 
   delayedClearDOMData() {
-    setTimeout(() => {
-      childrenStore.remove(this.props.name);
-    }, this.TIME_TO_WAIT_FOR_NEXT_BABA);
+    const { name } = this.props;
+
+    setTimeout(() => childrenStore.remove(name), this.TIME_TO_WAIT_FOR_NEXT_BABA);
   }
 
   storeDOMData() {
@@ -223,10 +238,12 @@ Your target child had a height of zero when capturing it's DOM data. This may af
 If it's an image, try and have the image loaded before mounting, or set a static height.`);
       }
 
+      const { name } = this.props;
+
       // NOTE: Currently in react 16.3 if the parent being unmounted is a Fragment
       // there is a chance for sibling elements to be removed from the DOM first
       // resulting in inaccurate calculations of location. Watch out!
-      childrenStore.set(this.props.name, {
+      childrenStore.set(name, {
         ...DOMData,
         targetDOMData,
         containerElement: this.containerElement as HTMLElement,
@@ -238,7 +255,9 @@ If it's an image, try and have the image loaded before mounting, or set a static
   }
 
   executeAnimations = () => {
-    const fromTarget = childrenStore.get(this.props.name);
+    const { name } = this.props;
+    const fromTarget = childrenStore.get(name);
+
     if (fromTarget) {
       const { data, ...target } = fromTarget;
       this.animating = true;
@@ -432,9 +451,11 @@ If it's an image, try and have the image loaded before mounting, or set a static
                 shown: true,
               });
 
+              const { context } = this.props;
+
               // If a BabaManager is a parent somewhere, notify them that we're finished animating.
-              if (this.props.context) {
-                this.props.context.onFinish({ name: this.props.name });
+              if (context) {
+                context.onFinish({ name });
               }
 
               // Run through all after animates.
@@ -451,9 +472,8 @@ If it's an image, try and have the image loaded before mounting, or set a static
             })
             .then(() => {
               this.animating = false;
-              if (this.props.onFinish) {
-                this.props.onFinish();
-              }
+              const { onFinish } = this.props;
+              onFinish();
             })
         );
       });
