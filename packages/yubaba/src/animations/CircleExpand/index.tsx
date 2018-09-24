@@ -4,6 +4,7 @@ import Collector, {
   AnimationCallback,
   CollectorData,
   CollectorActions,
+  AnimationData,
 } from '../../Collector';
 import { calculateHypotenuse } from '../../lib/math';
 import {
@@ -22,7 +23,12 @@ export interface CircleExpandProps extends CollectorChildrenProps {
   /**
    * How long the animation should take over {duration}ms.
    */
-  duration?: number;
+  duration: number;
+
+  /**
+   * zIndex to be applied to the moving element.
+   */
+  zIndex: number;
 }
 
 /**
@@ -37,17 +43,14 @@ export interface CircleExpandProps extends CollectorChildrenProps {
 export default class CircleExpand extends React.Component<CircleExpandProps> {
   static defaultProps = {
     duration: 500,
+    zIndex: 1110,
   };
 
-  renderAnimation: (opts: { step: number; onFinish: () => void }) => React.ReactElement<{}>;
+  renderAnimation = (data: AnimationData, options: { step: number; onFinish: () => void }) => {
+    const { duration, background, zIndex } = this.props;
 
-  afterAnimate: AnimationCallback = (_, onFinish) => this.renderAnimation({ onFinish, step: 1 });
-
-  animate: AnimationCallback = (data, onFinish) => {
     // Scroll could have changed between unmount and this prepare step, let's recalculate just in case.
     const fromTargetSizeLocation = recalculateLocationFromScroll(data.fromTarget);
-
-    const duration = this.props.duration as number;
     const minSize = Math.min(fromTargetSizeLocation.size.width, fromTargetSizeLocation.size.height);
     const fromTargetHypotenuse = calculateHypotenuse(fromTargetSizeLocation.size);
     const fromTargetCenterInViewport = calculateElementCenterInViewport(fromTargetSizeLocation);
@@ -63,10 +66,10 @@ export default class CircleExpand extends React.Component<CircleExpandProps> {
     const hypotenuseDifference = calculateHypotenuse(difference);
     const scale = Math.ceil((windowHypotenuse + hypotenuseDifference) / minSize);
 
-    this.renderAnimation = (opts: { step: number; onFinish: () => void }) => (
+    return (
       <SimpleKeyframe
-        key="circle-expand"
         style={{
+          zIndex,
           left:
             fromTargetSizeLocation.location.left -
             (fromTargetHypotenuse - fromTargetSizeLocation.size.width) / 2,
@@ -77,8 +80,7 @@ export default class CircleExpand extends React.Component<CircleExpandProps> {
           height: fromTargetHypotenuse,
           borderRadius: '50%',
           position: 'absolute',
-          background: this.props.background,
-          zIndex: 1110,
+          background,
           transition: `transform ease-in ${duration}ms, opacity ease-in ${duration / 2}ms`,
           transform: 'scale(1)',
           willChange: 'transform',
@@ -93,23 +95,35 @@ export default class CircleExpand extends React.Component<CircleExpandProps> {
             opacity: 0,
           },
         ]}
-        step={opts.step}
-        onFinish={opts.onFinish}
+        step={options.step}
+        onFinish={options.onFinish}
       />
     );
+  };
 
-    return this.renderAnimation({ onFinish, step: 0 });
+  afterAnimate: AnimationCallback = (data, onFinish) => {
+    return this.renderAnimation(data, { onFinish, step: 1 });
+  };
+
+  animate: AnimationCallback = (data, onFinish) => {
+    return this.renderAnimation(data, { onFinish, step: 0 });
   };
 
   render() {
-    const data: CollectorData = {
-      action: CollectorActions.animation,
-      payload: {
-        animate: this.animate,
-        afterAnimate: this.afterAnimate,
-      },
-    };
+    const { children } = this.props;
 
-    return <Collector data={data}>{this.props.children}</Collector>;
+    return (
+      <Collector
+        data={{
+          action: CollectorActions.animation,
+          payload: {
+            animate: this.animate,
+            afterAnimate: this.afterAnimate,
+          },
+        }}
+      >
+        {children}
+      </Collector>
+    );
   }
 }
