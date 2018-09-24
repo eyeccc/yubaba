@@ -46,6 +46,7 @@ export default class Move extends React.Component<MoveProps> {
   static defaultProps = {
     duration: 500,
     timingFunction: standard(),
+    zIndex: 10001,
   };
 
   beforeAnimate: AnimationCallback = (data, onFinish, setTargetProps) => {

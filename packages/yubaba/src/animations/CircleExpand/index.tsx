@@ -2,7 +2,6 @@ import * as React from 'react';
 import Collector, {
   CollectorChildrenProps,
   AnimationCallback,
-  CollectorData,
   CollectorActions,
   AnimationData,
 } from '../../Collector';
