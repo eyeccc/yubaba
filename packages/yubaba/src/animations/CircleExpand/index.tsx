@@ -12,6 +12,7 @@ import {
   recalculateLocationFromScroll,
 } from '../../lib/dom';
 import SimpleKeyframe from '../SimpleKeyframe';
+import { standard, accelerate } from '../../lib/curves';
 
 export interface CircleExpandProps extends CollectorChildrenProps {
   /**
@@ -80,7 +81,8 @@ export default class CircleExpand extends React.Component<CircleExpandProps> {
           borderRadius: '50%',
           position: 'absolute',
           background,
-          transition: `transform ease-in ${duration}ms, opacity ease-in ${duration / 2}ms`,
+          transition: `transform ${accelerate()} ${duration}ms, opacity ${standard()} ${duration /
+            2}ms`,
           transform: 'scale(1)',
           willChange: 'transform',
           opacity: 1,

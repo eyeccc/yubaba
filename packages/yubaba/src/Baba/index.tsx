@@ -19,7 +19,6 @@ import defer from '../lib/defer';
 import noop from '../lib/noop';
 import * as childrenStore from '../lib/childrenStore';
 import { InjectedProps, withBabaManagerContext } from '../BabaManager';
-import { request } from 'https';
 
 /**
  * @hidden

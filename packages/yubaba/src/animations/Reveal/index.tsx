@@ -49,23 +49,29 @@ targetElement was missing.`);
     }
 
     setTargetProps({
-      style: () => ({
-        opacity: 1,
-        visibility: 'visible',
-        willChange: 'height, width',
-        height: data.toTarget.targetDOMData.size.height,
-        width: data.toTarget.targetDOMData.size.width,
-        overflow: 'hidden',
-      }),
-      className: () => css`
-        > * {
-          transform: translate3d(
-            -${data.toTarget.targetDOMData.location.left - data.toTarget.location.left}px,
-            -${data.toTarget.targetDOMData.location.top - data.toTarget.location.top}px,
-            0
-          );
-        }
-      `,
+      style: () =>
+        data.toTarget.targetDOMData
+          ? {
+              opacity: 1,
+              visibility: 'visible',
+              willChange: 'height, width',
+              height: data.toTarget.targetDOMData.size.height,
+              width: data.toTarget.targetDOMData.size.width,
+              overflow: 'hidden',
+            }
+          : undefined,
+      className: () =>
+        data.toTarget.targetDOMData
+          ? css`
+              > * {
+                transform: translate3d(
+                  -${data.toTarget.targetDOMData.location.left - data.toTarget.location.left}px,
+                  -${data.toTarget.targetDOMData.location.top - data.toTarget.location.top}px,
+                  0
+                );
+              }
+            `
+          : undefined,
     });
 
     onFinish();

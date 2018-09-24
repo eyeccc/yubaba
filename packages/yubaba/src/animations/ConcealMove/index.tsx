@@ -112,9 +112,9 @@ targetElement was missing.`);
 
   afterAnimate: AnimationCallback = (data, onFinish, setTargetProps) => {
     setTargetProps({
-      style: {
+      style: () => ({
         opacity: 1,
-      },
+      }),
     });
 
     setTimeout(onFinish, 100);

@@ -7,8 +7,8 @@ export interface TargetProps {
 }
 
 export interface TargetPropsFunc {
-  style?: (previous: InlineStyles) => InlineStyles;
-  className?: (previous: string | undefined) => string;
+  style?: (previous: InlineStyles) => InlineStyles | undefined;
+  className?: (previous: string | undefined) => string | undefined;
 }
 
 export type SetTargetProps = (props: TargetPropsFunc) => void;

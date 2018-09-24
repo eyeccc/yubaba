@@ -8,6 +8,7 @@ import Collector, {
 import { calculateHypotenuse } from '../../lib/math';
 import { calculateWindowCentre, calculateElementCenterInViewport } from '../../lib/dom';
 import SimpleKeyframe from '../SimpleKeyframe';
+import { standard, decelerate } from '../../lib/curves';
 
 export interface CircleShrinkProps extends CollectorChildrenProps {
   /**
@@ -71,7 +72,7 @@ export default class CircleShrink extends React.Component<CircleShrinkProps> {
           position: 'absolute',
           background,
           willChange: 'transform',
-          transition: `transform ease-out ${duration}ms, opacity ease-out ${duration}ms`,
+          transition: `transform ${decelerate()} ${duration}ms, opacity ${standard()} ${duration}ms`,
           transform: `scale(${scale})`,
         }}
         keyframes={[
