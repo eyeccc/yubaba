@@ -12,13 +12,14 @@ import Collector, {
   CollectorChildrenProps,
   CollectorActions,
   InlineStyles,
-  TargetProps,
+  TargetPropsFunc,
 } from '../Collector';
 import { getElementSizeLocation } from '../lib/dom';
 import defer from '../lib/defer';
 import noop from '../lib/noop';
 import * as childrenStore from '../lib/childrenStore';
 import { InjectedProps, withBabaManagerContext } from '../BabaManager';
+import { request } from 'https';
 
 /**
  * @hidden
@@ -308,25 +309,18 @@ If it's an image, try and have the image loaded before mounting, or set a static
             }
           };
 
-          let propsStore: ChildProps = {};
-          const setTargetProps = (props: TargetProps | null) => {
+          const setTargetProps = (props: TargetPropsFunc | null) => {
             if (props) {
-              // We keep existing set props so consumers don't need to keep
-              // calling it with the same props. Think of how setState works
-              // except in this instance its deeply nested.
-              propsStore = {
-                ...propsStore,
-                ...props,
-                style: {
-                  ...propsStore.style,
-                  ...props.style,
+              this.setState(prevState => ({
+                childProps: {
+                  style: props.style
+                    ? props.style(prevState.childProps.style || {})
+                    : prevState.childProps.style,
+                  className: props.className
+                    ? props.className(prevState.childProps.className)
+                    : prevState.childProps.className,
                 },
-                className: props.className,
-              };
-
-              this.setState({
-                childProps: propsStore,
-              });
+              }));
             } else {
               this.setState({
                 childProps: {},
@@ -346,6 +340,8 @@ If it's an image, try and have the image loaded before mounting, or set a static
                     setTargetProps
                   );
 
+                  requestAnimationFrame(e => console.log(e.toPrecision()));
+
                   if (jsx) {
                     mount(jsx);
                   }
@@ -362,6 +358,8 @@ If it's an image, try and have the image loaded before mounting, or set a static
                   deferred.resolve,
                   setTargetProps
                 );
+
+                requestAnimationFrame(e => console.log(e.toPrecision()));
 
                 if (jsx) {
                   mount(jsx);
@@ -435,48 +433,55 @@ If it's an image, try and have the image loaded before mounting, or set a static
             : Promise.resolve()
       );
 
-      Promise.all(beforeAnimatePromises).then(() => {
-        // Trigger each blocks animations, one block at a time.
-        return (
-          blocks
-            // We don't care what the promises return.
-            .reduce<Promise<any>>(
-              (promise, block) =>
-                promise.then(() => Promise.all(block.map(anim => anim.animate()))),
-              Promise.resolve()
-            )
-            .then(() => {
-              // We're finished all the transitions! Show the child element.
-              this.setState({
-                shown: true,
-              });
-
-              const { context } = this.props;
-
-              // If a BabaManager is a parent somewhere, notify them that we're finished animating.
-              if (context) {
-                context.onFinish({ name });
-              }
-
-              // Run through all after animates.
-              return blocks.reduce(
+      Promise.all(beforeAnimatePromises)
+        .then(() => {
+          // Wait an animation frame before triggering animations.
+          const deferred = defer();
+          setTimeout(() => deferred.resolve, 20);
+          return deferred;
+        })
+        .then(() => {
+          // Trigger each blocks animations, one block at a time.
+          return (
+            blocks
+              // We don't care what the promises return.
+              .reduce<Promise<any>>(
                 (promise, block) =>
-                  promise.then(() =>
-                    Promise.all(block.map(anim => anim.afterAnimate())).then(() => undefined)
-                  ),
+                  promise.then(() => Promise.all(block.map(anim => anim.animate()))),
                 Promise.resolve()
-              );
-            })
-            .then(() => {
-              blocks.forEach(block => block.forEach(anim => anim.cleanup()));
-            })
-            .then(() => {
-              this.animating = false;
-              const { onFinish } = this.props;
-              onFinish();
-            })
-        );
-      });
+              )
+              .then(() => {
+                // We're finished all the transitions! Show the child element.
+                this.setState({
+                  shown: true,
+                });
+
+                const { context } = this.props;
+
+                // If a BabaManager is a parent somewhere, notify them that we're finished animating.
+                if (context) {
+                  context.onFinish({ name });
+                }
+
+                // Run through all after animates.
+                return blocks.reduce(
+                  (promise, block) =>
+                    promise.then(() =>
+                      Promise.all(block.map(anim => anim.afterAnimate())).then(() => undefined)
+                    ),
+                  Promise.resolve()
+                );
+              })
+              .then(() => {
+                blocks.forEach(block => block.forEach(anim => anim.cleanup()));
+              })
+              .then(() => {
+                this.animating = false;
+                const { onFinish } = this.props;
+                onFinish();
+              })
+          );
+        });
     }
   };
 

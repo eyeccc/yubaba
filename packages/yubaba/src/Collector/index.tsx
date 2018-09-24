@@ -6,7 +6,12 @@ export interface TargetProps {
   className?: string;
 }
 
-export type SetTargetProps = (props: TargetProps) => void;
+export interface TargetPropsFunc {
+  style?: (previous: InlineStyles) => InlineStyles;
+  className?: (previous: string | undefined) => string;
+}
+
+export type SetTargetProps = (props: TargetPropsFunc) => void;
 
 /**
  * AnimationCallback

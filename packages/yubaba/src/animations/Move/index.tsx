@@ -44,58 +44,48 @@ export interface MoveProps extends CollectorChildrenProps {
  */
 export default class Move extends React.Component<MoveProps> {
   static defaultProps = {
-    duration: 500,
+    duration: 9999999,
     timingFunction: standard(),
     zIndex: 10001,
   };
 
   beforeAnimate: AnimationCallback = (data, onFinish, setTargetProps) => {
-    const { duration, zIndex, timingFunction } = this.props;
+    const { zIndex } = this.props;
+
     // Scroll could have changed between unmount and this prepare step.
     const fromTargetSizeLocation = recalculateLocationFromScroll(data.fromTarget);
     const toStartXOffset = fromTargetSizeLocation.location.left - data.toTarget.location.left;
     const toStartYOffset = fromTargetSizeLocation.location.top - data.toTarget.location.top;
 
-    const style = {
-      zIndex,
-      opacity: 1,
-      transformOrigin: '0 0',
-      visibility: 'visible',
-      willChange: 'transform',
-      transform: `translate3d(${toStartXOffset}px, ${toStartYOffset}px, 0) scale3d(${math.percentageDifference(
-        fromTargetSizeLocation.size.width,
-        data.toTarget.size.width
-      )}, ${math.percentageDifference(
-        fromTargetSizeLocation.size.height,
-        data.toTarget.size.height
-      )}, 1)`,
-    };
-
     setTargetProps({
-      style,
+      style: () => ({
+        zIndex,
+        opacity: 1,
+        transformOrigin: '0 0',
+        visibility: 'visible',
+        willChange: 'transform',
+        transform: `translate3d(${toStartXOffset}px, ${toStartYOffset}px, 0) scale3d(${math.percentageDifference(
+          fromTargetSizeLocation.size.width,
+          data.toTarget.size.width
+        )}, ${math.percentageDifference(
+          fromTargetSizeLocation.size.height,
+          data.toTarget.size.height
+        )}, 1)`,
+      }),
     });
 
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setTargetProps({
-          style: {
-            transition: `transform ${duration}ms ${timingFunction}, opacity ${duration /
-              2}ms ${timingFunction}`,
-          },
-        });
-
-        onFinish();
-      });
-    });
+    onFinish();
   };
 
   animate: AnimationCallback = (_, onFinish, setTargetProps) => {
-    const { duration } = this.props;
+    const { duration, timingFunction } = this.props;
 
     setTargetProps({
-      style: {
+      style: () => ({
+        transition: `transform ${duration}ms ${timingFunction}, opacity ${duration /
+          2}ms ${timingFunction}`,
         transform: 'translate3d(0, 0, 0) scale3d(1, 1, 1)',
-      },
+      }),
     });
 
     setTimeout(() => onFinish(), duration);

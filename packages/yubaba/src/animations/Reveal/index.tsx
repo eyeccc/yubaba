@@ -48,18 +48,16 @@ export default class Reveal extends React.Component<RevealProps> {
 targetElement was missing.`);
     }
 
-    const { timingFunction, duration } = this.props;
-
     setTargetProps({
-      style: {
+      style: () => ({
         opacity: 1,
         visibility: 'visible',
         willChange: 'height, width',
         height: data.toTarget.targetDOMData.size.height,
         width: data.toTarget.targetDOMData.size.width,
         overflow: 'hidden',
-      },
-      className: css`
+      }),
+      className: () => css`
         > * {
           transform: translate3d(
             -${data.toTarget.targetDOMData.location.left - data.toTarget.location.left}px,
@@ -70,43 +68,19 @@ targetElement was missing.`);
       `,
     });
 
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (!data.toTarget.targetDOMData) {
-          throw new Error(`yubaba
-targetElement was missing.`);
-        }
-
-        setTargetProps({
-          style: {
-            transition: `height ${duration}ms ${timingFunction}, width ${duration}ms ${timingFunction}`,
-          },
-          className: css`
-            > * {
-              transition: transform ${duration}ms ${timingFunction};
-              transform: translate3d(
-                -${data.toTarget.targetDOMData.location.left - data.toTarget.location.left}px,
-                -${data.toTarget.targetDOMData.location.top - data.toTarget.location.top}px,
-                0
-              );
-            }
-          `,
-        });
-
-        requestAnimationFrame(onFinish);
-      });
-    });
+    onFinish();
   };
 
   animate: AnimationCallback = (data, onFinish, setTargetProps) => {
     const { timingFunction, duration } = this.props;
 
     setTargetProps({
-      style: {
+      style: () => ({
         height: data.toTarget.size.height,
         width: data.toTarget.size.width,
-      },
-      className: css`
+        transition: `height ${duration}ms ${timingFunction}, width ${duration}ms ${timingFunction}`,
+      }),
+      className: () => css`
         > * {
           transition: transform ${duration}ms ${timingFunction};
           transform: translate3d(0, 0, 0);
