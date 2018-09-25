@@ -339,7 +339,7 @@ If it's an image, try and have the image loaded before mounting, or set a static
                     setTargetProps
                   );
 
-                  requestAnimationFrame(e => console.log(e.toPrecision()));
+                  console.log('beforeAnimate');
 
                   if (jsx) {
                     mount(jsx);
@@ -358,7 +358,7 @@ If it's an image, try and have the image loaded before mounting, or set a static
                   setTargetProps
                 );
 
-                requestAnimationFrame(e => console.log(e.toPrecision()));
+                console.log('animate');
 
                 if (jsx) {
                   mount(jsx);
@@ -436,10 +436,21 @@ If it's an image, try and have the image loaded before mounting, or set a static
         .then(() => {
           // Wait an animation frame before triggering animations.
           const deferred = defer();
-          setTimeout(() => deferred.resolve, 20);
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  requestAnimationFrame(() => {
+                    requestAnimationFrame(() => deferred.resolve());
+                  });
+                });
+              });
+            });
+          });
           return deferred;
         })
         .then(() => {
+          console.log('hey');
           // Trigger each blocks animations, one block at a time.
           return (
             blocks

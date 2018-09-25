@@ -44,7 +44,7 @@ export interface MoveProps extends CollectorChildrenProps {
  */
 export default class Move extends React.Component<MoveProps> {
   static defaultProps = {
-    duration: 9999999,
+    duration: 500,
     timingFunction: standard(),
     zIndex: 10001,
   };
