@@ -49,9 +49,10 @@ targetElement was missing.`);
     }
 
     setTargetProps({
-      style: () =>
+      style: prevStyles =>
         data.toTarget.targetDOMData
           ? {
+              ...prevStyles,
               opacity: 1,
               visibility: 'visible',
               willChange: 'height, width',
@@ -74,14 +75,15 @@ targetElement was missing.`);
           : undefined,
     });
 
-    onFinish();
+    // onFinish();
   };
 
   animate: AnimationCallback = (data, onFinish, setTargetProps) => {
     const { timingFunction, duration } = this.props;
 
     setTargetProps({
-      style: () => ({
+      style: prevStyles => ({
+        ...prevStyles,
         height: data.toTarget.size.height,
         width: data.toTarget.size.width,
         transition: `height ${duration}ms ${timingFunction}, width ${duration}ms ${timingFunction}`,
