@@ -58,7 +58,8 @@ export default class Move extends React.Component<MoveProps> {
     const toStartYOffset = fromTargetSizeLocation.location.top - data.toTarget.location.top;
 
     setTargetProps({
-      style: () => ({
+      style: prevStyles => ({
+        ...prevStyles,
         zIndex,
         opacity: 1,
         transformOrigin: '0 0',
@@ -81,7 +82,8 @@ export default class Move extends React.Component<MoveProps> {
     const { duration, timingFunction } = this.props;
 
     setTargetProps({
-      style: () => ({
+      style: prevStyles => ({
+        ...prevStyles,
         transition: `transform ${duration}ms ${timingFunction}, opacity ${duration /
           2}ms ${timingFunction}`,
         transform: 'translate3d(0, 0, 0) scale3d(1, 1, 1)',

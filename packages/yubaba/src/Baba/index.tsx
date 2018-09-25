@@ -339,8 +339,6 @@ If it's an image, try and have the image loaded before mounting, or set a static
                     setTargetProps
                   );
 
-                  console.log('beforeAnimate');
-
                   if (jsx) {
                     mount(jsx);
                   }
@@ -357,8 +355,6 @@ If it's an image, try and have the image loaded before mounting, or set a static
                   deferred.resolve,
                   setTargetProps
                 );
-
-                console.log('animate');
 
                 if (jsx) {
                   mount(jsx);
@@ -434,23 +430,15 @@ If it's an image, try and have the image loaded before mounting, or set a static
 
       Promise.all(beforeAnimatePromises)
         .then(() => {
-          // Wait an animation frame before triggering animations.
+          // Wait two animation frames before triggering animations.
+          // This makes sure state set inside animate don't happen in the same animation frame as beforeAnimate.
           const deferred = defer();
           requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                  requestAnimationFrame(() => {
-                    requestAnimationFrame(() => deferred.resolve());
-                  });
-                });
-              });
-            });
+            requestAnimationFrame(() => deferred.resolve());
           });
-          return deferred;
+          return deferred.promise;
         })
         .then(() => {
-          console.log('hey');
           // Trigger each blocks animations, one block at a time.
           return (
             blocks
