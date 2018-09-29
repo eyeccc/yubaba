@@ -6,6 +6,7 @@ import Collector, {
   CollectorActions,
 } from '../../Collector';
 import { standard } from '../../lib/curves';
+import { combineTransition } from '../../lib/style';
 
 export interface RevealProps extends CollectorChildrenProps {
   /**
@@ -48,6 +49,8 @@ export default class Reveal extends React.Component<RevealProps> {
 targetElement was missing.`);
     }
 
+    const { timingFunction, duration } = this.props;
+
     setTargetProps({
       style: prevStyles =>
         data.toTarget.targetDOMData
@@ -59,6 +62,10 @@ targetElement was missing.`);
               height: data.toTarget.targetDOMData.size.height,
               width: data.toTarget.targetDOMData.size.width,
               overflow: 'hidden',
+              transition: combineTransition(
+                `${prevStyles.transition ||
+                  ''} height ${duration}ms ${timingFunction}, width ${duration}ms ${timingFunction}`
+              )(prevStyles.transition as string),
             }
           : undefined,
       className: () =>
@@ -75,7 +82,7 @@ targetElement was missing.`);
           : undefined,
     });
 
-    // onFinish();
+    onFinish();
   };
 
   animate: AnimationCallback = (data, onFinish, setTargetProps) => {
@@ -86,7 +93,6 @@ targetElement was missing.`);
         ...prevStyles,
         height: data.toTarget.size.height,
         width: data.toTarget.size.width,
-        transition: `height ${duration}ms ${timingFunction}, width ${duration}ms ${timingFunction}`,
       }),
       className: () => css`
         > * {

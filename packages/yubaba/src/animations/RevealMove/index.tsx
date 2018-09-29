@@ -6,9 +6,11 @@ export default class RevealMove extends React.Component<RevealProps & MoveProps>
   render() {
     const { children, ...props } = this.props;
     return (
-      <Move {...props}>
-        <Reveal {...props}>{children}</Reveal>
-      </Move>
+      <Reveal {...props}>
+        <Move {...props} useFocalElement>
+          {children}
+        </Move>
+      </Reveal>
     );
   }
 }

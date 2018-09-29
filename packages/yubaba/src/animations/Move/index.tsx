@@ -7,6 +7,7 @@ import Collector, {
 import * as math from '../../lib/math';
 import { recalculateLocationFromScroll } from '../../lib/dom';
 import { standard } from '../../lib/curves';
+import { combineTransition } from '../../lib/style';
 
 export interface MoveProps extends CollectorChildrenProps {
   /**
@@ -28,6 +29,12 @@ export interface MoveProps extends CollectorChildrenProps {
    * Timing function to be used in the transition, see: https://developer.mozilla.org/en-US/docs/Web/CSS/animation-timing-function
    */
   timingFunction: string;
+
+  /**
+   * Will use <Target /> size and location for destination transform calculation.
+   * Internally this is used for the <RevealMove /> animation.
+   */
+  useFocalElement: boolean;
 }
 
 /**
@@ -47,15 +54,23 @@ export default class Move extends React.Component<MoveProps> {
     duration: 500,
     timingFunction: standard(),
     zIndex: 10001,
+    useFocalElement: false,
   };
 
   beforeAnimate: AnimationCallback = (data, onFinish, setTargetProps) => {
-    const { zIndex } = this.props;
+    const { zIndex, useFocalElement } = this.props;
+
+    if (useFocalElement && !data.toTarget.targetDOMData) {
+      throw new Error(`yubaba
+targetElement was missing.`);
+    }
 
     // Scroll could have changed between unmount and this prepare step.
-    const fromTargetSizeLocation = recalculateLocationFromScroll(data.fromTarget);
-    const toStartXOffset = fromTargetSizeLocation.location.left - data.toTarget.location.left;
-    const toStartYOffset = fromTargetSizeLocation.location.top - data.toTarget.location.top;
+    const originTarget = recalculateLocationFromScroll(data.fromTarget);
+    const destinationTarget =
+      useFocalElement && data.toTarget.targetDOMData ? data.toTarget.targetDOMData : data.toTarget;
+    const toStartXOffset = originTarget.location.left - data.toTarget.location.left;
+    const toStartYOffset = originTarget.location.top - data.toTarget.location.top;
 
     setTargetProps({
       style: prevStyles => ({
@@ -66,11 +81,11 @@ export default class Move extends React.Component<MoveProps> {
         visibility: 'visible',
         willChange: 'transform',
         transform: `translate3d(${toStartXOffset}px, ${toStartYOffset}px, 0) scale3d(${math.percentageDifference(
-          fromTargetSizeLocation.size.width,
-          data.toTarget.size.width
+          originTarget.size.width,
+          destinationTarget.size.width
         )}, ${math.percentageDifference(
-          fromTargetSizeLocation.size.height,
-          data.toTarget.size.height
+          originTarget.size.height,
+          destinationTarget.size.height
         )}, 1)`,
       }),
     });
@@ -84,8 +99,9 @@ export default class Move extends React.Component<MoveProps> {
     setTargetProps({
       style: prevStyles => ({
         ...prevStyles,
-        transition: `transform ${duration}ms ${timingFunction}, opacity ${duration /
-          2}ms ${timingFunction}`,
+        transition: combineTransition(
+          `transform ${duration}ms ${timingFunction}, opacity ${duration / 2}ms ${timingFunction}`
+        )(prevStyles.transition as string),
         transform: 'translate3d(0, 0, 0) scale3d(1, 1, 1)',
       }),
     });

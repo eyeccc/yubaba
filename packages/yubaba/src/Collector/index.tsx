@@ -1,4 +1,7 @@
 import * as React from 'react';
+// We don't want to depend on this, we'll just grab whatever version emotion gets.
+// eslint-disable-next-line import/no-extraneous-dependencies
+// import { CSSObject } from 'create-emotion';
 import { GetElementSizeLocationReturnValue } from '../lib/dom';
 
 export interface TargetProps {
@@ -75,6 +78,7 @@ export interface AnimationData {
   toTarget: TargetData;
 }
 
+// export interface InlineStyles extends CSSObject {}
 export interface InlineStyles {
   [key: string]: string | number | undefined;
 }
