@@ -364,3 +364,7 @@ import Baba, { Swipe } from 'yubaba';
 ## API Reference
 
 [See typedoc.](https://madou.github.io/yubaba/typedoc/)
+
+## Troubleshooting
+
+### RevealMove jumps around

@@ -6,7 +6,7 @@ import Collector, {
   CollectorActions,
 } from '../../Collector';
 import { standard } from '../../lib/curves';
-import { combineTransition } from '../../lib/style';
+import { combine } from '../../lib/style';
 
 export interface RevealProps extends CollectorChildrenProps {
   /**
@@ -58,14 +58,13 @@ targetElement was missing.`);
               ...prevStyles,
               opacity: 1,
               visibility: 'visible',
-              willChange: 'height, width',
+              willChange: combine('height, width')(prevStyles.willChange),
               height: data.toTarget.targetDOMData.size.height,
               width: data.toTarget.targetDOMData.size.width,
               overflow: 'hidden',
-              transition: combineTransition(
-                `${prevStyles.transition ||
-                  ''} height ${duration}ms ${timingFunction}, width ${duration}ms ${timingFunction}`
-              )(prevStyles.transition as string),
+              transition: combine(
+                `height ${duration}ms ${timingFunction}, width ${duration}ms ${timingFunction}`
+              )(prevStyles.transition),
             }
           : undefined,
       className: () =>

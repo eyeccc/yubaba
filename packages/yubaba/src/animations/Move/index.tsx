@@ -7,7 +7,7 @@ import Collector, {
 import * as math from '../../lib/math';
 import { recalculateLocationFromScroll } from '../../lib/dom';
 import { standard } from '../../lib/curves';
-import { combineTransition } from '../../lib/style';
+import { combine } from '../../lib/style';
 
 export interface MoveProps extends CollectorChildrenProps {
   /**
@@ -79,7 +79,7 @@ targetElement was missing.`);
         opacity: 1,
         transformOrigin: '0 0',
         visibility: 'visible',
-        willChange: 'transform',
+        willChange: combine('transform')(prevStyles.willChange),
         transform: `translate3d(${toStartXOffset}px, ${toStartYOffset}px, 0) scale3d(${math.percentageDifference(
           originTarget.size.width,
           destinationTarget.size.width
@@ -99,9 +99,9 @@ targetElement was missing.`);
     setTargetProps({
       style: prevStyles => ({
         ...prevStyles,
-        transition: combineTransition(
+        transition: combine(
           `transform ${duration}ms ${timingFunction}, opacity ${duration / 2}ms ${timingFunction}`
-        )(prevStyles.transition as string),
+        )(prevStyles.transition),
         transform: 'translate3d(0, 0, 0) scale3d(1, 1, 1)',
       }),
     });
