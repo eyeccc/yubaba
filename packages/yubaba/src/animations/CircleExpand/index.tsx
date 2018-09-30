@@ -13,6 +13,7 @@ import {
 } from '../../lib/dom';
 import SimpleKeyframe from '../SimpleKeyframe';
 import { standard, accelerate } from '../../lib/curves';
+import { zIndexStack } from '../../lib/style';
 
 export interface CircleExpandProps extends CollectorChildrenProps {
   /**
@@ -43,7 +44,7 @@ export interface CircleExpandProps extends CollectorChildrenProps {
 export default class CircleExpand extends React.Component<CircleExpandProps> {
   static defaultProps = {
     duration: 500,
-    zIndex: 1110,
+    zIndex: zIndexStack.circleExpand,
   };
 
   renderAnimation = (data: AnimationData, options: { step?: number; onFinish: () => void }) => {

@@ -9,6 +9,7 @@ import { calculateHypotenuse } from '../../lib/math';
 import { calculateWindowCentre, calculateElementCenterInViewport } from '../../lib/dom';
 import SimpleKeyframe from '../SimpleKeyframe';
 import { standard, decelerate } from '../../lib/curves';
+import { zIndexStack } from '../../lib/style';
 
 export interface CircleShrinkProps extends CollectorChildrenProps {
   /**
@@ -39,7 +40,7 @@ export interface CircleShrinkProps extends CollectorChildrenProps {
 export default class CircleShrink extends React.Component<CircleShrinkProps> {
   static defaultProps = {
     duration: 500,
-    zIndex: 1110,
+    zIndex: zIndexStack.circleShrink,
   };
 
   renderAnimation = (data: AnimationData, options: { step?: number; onFinish: () => void }) => {

@@ -7,7 +7,7 @@ import Collector, {
 import * as math from '../../lib/math';
 import { recalculateLocationFromScroll } from '../../lib/dom';
 import { standard } from '../../lib/curves';
-import { combine } from '../../lib/style';
+import { combine, zIndexStack } from '../../lib/style';
 
 export interface MoveProps extends CollectorChildrenProps {
   /**
@@ -53,7 +53,7 @@ export default class Move extends React.Component<MoveProps> {
   static defaultProps = {
     duration: 500,
     timingFunction: standard(),
-    zIndex: 10001,
+    zIndex: zIndexStack.move,
     useFocalElement: false,
   };
 

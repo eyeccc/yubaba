@@ -9,6 +9,7 @@ import * as math from '../../lib/math';
 import { recalculateLocationFromScroll } from '../../lib/dom';
 import noop from '../../lib/noop';
 import { standard } from '../../lib/curves';
+import { zIndexStack } from '../../lib/style';
 
 export interface FadeMoveProps extends CollectorChildrenProps {
   /**
@@ -48,7 +49,7 @@ export default class FadeMove extends React.Component<FadeMoveProps> {
   static defaultProps = {
     duration: 500,
     timingFunction: standard(),
-    zIndex: 20000,
+    zIndex: zIndexStack.fadeMove,
   };
 
   renderAnimation = (data: AnimationData, options: { moveToTarget?: boolean } = {}) => {

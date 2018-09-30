@@ -9,6 +9,7 @@ import Collector, {
 import { recalculateLocationFromScroll } from '../../lib/dom';
 import noop from '../../lib/noop';
 import { standard } from '../../lib/curves';
+import { zIndexStack } from '../../lib/style';
 
 export interface ConcealMoveProps extends CollectorChildrenProps {
   /**
@@ -43,7 +44,7 @@ export default class ConcealMove extends React.Component<ConcealMoveProps> {
   static defaultProps = {
     duration: 500,
     timingFunction: standard(),
-    zIndex: 19999,
+    zIndex: zIndexStack.concealMove,
   };
 
   renderAnimation = (
