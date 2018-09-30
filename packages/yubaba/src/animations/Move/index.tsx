@@ -35,6 +35,18 @@ export interface MoveProps extends CollectorChildrenProps {
    * Internally this is used for the <RevealMove /> animation.
    */
   useFocalElement: boolean;
+
+  /**
+   * ??? Does this work.
+   * Defaults to true.
+   */
+  transformX?: boolean;
+
+  /**
+   * ??? Does this work.
+   * Defaults to `true`.
+   */
+  transformY?: boolean;
 }
 
 /**
@@ -55,10 +67,12 @@ export default class Move extends React.Component<MoveProps> {
     timingFunction: standard(),
     zIndex: zIndexStack.move,
     useFocalElement: false,
+    transformX: true,
+    transformY: true,
   };
 
   beforeAnimate: AnimationCallback = (data, onFinish, setTargetProps) => {
-    const { zIndex, useFocalElement } = this.props;
+    const { zIndex, useFocalElement, transformX, transformY } = this.props;
 
     if (useFocalElement && !data.toTarget.targetDOMData) {
       throw new Error(`yubaba
@@ -69,8 +83,10 @@ targetElement was missing.`);
     const originTarget = recalculateLocationFromScroll(data.fromTarget);
     const destinationTarget =
       useFocalElement && data.toTarget.targetDOMData ? data.toTarget.targetDOMData : data.toTarget;
-    const toStartXOffset = originTarget.location.left - data.toTarget.location.left;
-    const toStartYOffset = originTarget.location.top - data.toTarget.location.top;
+    const toStartXOffset = transformX
+      ? originTarget.location.left - data.toTarget.location.left
+      : 0;
+    const toStartYOffset = transformY ? originTarget.location.top - data.toTarget.location.top : 0;
 
     setTargetProps({
       style: prevStyles => ({

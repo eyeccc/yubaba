@@ -28,19 +28,29 @@ export interface RevealProps extends CollectorChildrenProps {
    * Timing function to be used in the transition, see: https://developer.mozilla.org/en-US/docs/Web/CSS/animation-timing-function
    */
   timingFunction: string;
+
+  /**
+   * ??? Does this work.
+   * Defaults to true.
+   */
+  childrenTransformX?: boolean;
+
+  /**
+   * ??? Does this work.
+   * Defaults to `true`.
+   */
+  childrenTransformY?: boolean;
 }
 
 /**
  * ## Reveal
- *
- * Flex centering makes things difficult.
- * For vertically aligned items consider either wrapping your element inside another div or turning on skipInitialTransformOffset.
- * For horizontally aligned items it's little bit tricker. Try turning on skipInitialTransformOffset.
  */
 export default class Reveal extends React.Component<RevealProps> {
   static defaultProps = {
     duration: 500,
     timingFunction: standard(),
+    childrenTransformX: true,
+    childrenTransformY: true,
   };
 
   beforeAnimate: AnimationCallback = (data, onFinish, setTargetProps) => {
@@ -49,7 +59,14 @@ export default class Reveal extends React.Component<RevealProps> {
 targetElement was missing.`);
     }
 
-    const { timingFunction, duration } = this.props;
+    const { childrenTransformX, childrenTransformY } = this.props;
+
+    const offsetChildrenX = childrenTransformX
+      ? data.toTarget.targetDOMData.location.left - data.toTarget.location.left
+      : 0;
+    const offsetChildrenY = childrenTransformY
+      ? data.toTarget.targetDOMData.location.top - data.toTarget.location.top
+      : 0;
 
     setTargetProps({
       style: prevStyles =>
@@ -62,22 +79,15 @@ targetElement was missing.`);
               height: data.toTarget.targetDOMData.size.height,
               width: data.toTarget.targetDOMData.size.width,
               overflow: 'hidden',
-              transition: combine(
-                `height ${duration}ms ${timingFunction}, width ${duration}ms ${timingFunction}`
-              )(prevStyles.transition),
             }
           : undefined,
       className: () =>
         data.toTarget.targetDOMData
-          ? css`
-              > * {
-                transform: translate3d(
-                  -${data.toTarget.targetDOMData.location.left - data.toTarget.location.left}px,
-                  -${data.toTarget.targetDOMData.location.top - data.toTarget.location.top}px,
-                  0
-                );
-              }
-            `
+          ? css({
+              '> *': {
+                transform: `translate3d(-${offsetChildrenX}px, -${offsetChildrenY}px, 0)`,
+              },
+            })
           : undefined,
     });
 
@@ -92,13 +102,17 @@ targetElement was missing.`);
         ...prevStyles,
         height: data.toTarget.size.height,
         width: data.toTarget.size.width,
+        transition: combine(
+          `height ${duration}ms ${timingFunction}, width ${duration}ms ${timingFunction}`
+        )(prevStyles.transition),
       }),
-      className: () => css`
-        > * {
-          transition: transform ${duration}ms ${timingFunction};
-          transform: translate3d(0, 0, 0);
-        }
-      `,
+      className: () =>
+        css({
+          '> *': {
+            transform: `translate3d(0, 0, 0)`,
+            transition: `transform ${duration}ms ${timingFunction}`,
+          },
+        }),
     });
 
     setTimeout(() => onFinish(), duration);

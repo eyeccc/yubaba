@@ -67,6 +67,7 @@ const TallListItem = styled.div<TallListItemProps>`
   display: flex;
   align-items: center;
   background: #baed91;
+  margin: 0 auto;
   height: ${props =>
     props.orientation === 'both' || props.orientation === 'vertical'
       ? props.height * 3
@@ -84,7 +85,7 @@ const build = (width: number, height: number, orientation: Orientation) => (
         {shown || (
           <Container center>
             <Baba name={`reveal-move-${orientation}`}>
-              <RevealMove>
+              <RevealMove childrenTransformX={false} childrenTransformY={false} transformX={false}>
                 {baba => (
                   <ListItem
                     onClick={() => toggle()}
@@ -105,23 +106,25 @@ const build = (width: number, height: number, orientation: Orientation) => (
             <Baba name={`reveal-move-${orientation}`}>
               <Collector>
                 {baba => (
-                  // We use a wrapper div here because the child centers it's children via flexbox.
-                  // Since it centers it with flexbox when we transition it around our assumptions change
-                  // when it's height changes.
-                  <div {...baba}>
-                    <TallListItem width={width} height={height} orientation={orientation}>
-                      <Target>
-                        {target => (
-                          <ListItem
-                            width={width}
-                            height={height}
-                            onClick={() => toggle()}
-                            innerRef={target.ref}
-                          />
-                        )}
-                      </Target>
-                    </TallListItem>
-                  </div>
+                  <TallListItem
+                    width={width}
+                    height={height}
+                    orientation={orientation}
+                    style={baba.style}
+                    className={baba.className}
+                    innerRef={baba.ref}
+                  >
+                    <Target>
+                      {target => (
+                        <ListItem
+                          width={width}
+                          height={height}
+                          onClick={() => toggle()}
+                          innerRef={target.ref}
+                        />
+                      )}
+                    </Target>
+                  </TallListItem>
                 )}
               </Collector>
             </Baba>
