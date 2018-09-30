@@ -46,7 +46,7 @@ export default class CircleExpand extends React.Component<CircleExpandProps> {
     zIndex: 1110,
   };
 
-  renderAnimation = (data: AnimationData, options: { step: number; onFinish: () => void }) => {
+  renderAnimation = (data: AnimationData, options: { step?: number; onFinish: () => void }) => {
     const { duration, background, zIndex } = this.props;
 
     // Scroll could have changed between unmount and this prepare step, let's recalculate just in case.
@@ -102,12 +102,17 @@ export default class CircleExpand extends React.Component<CircleExpandProps> {
     );
   };
 
-  afterAnimate: AnimationCallback = (data, onFinish) => {
-    return this.renderAnimation(data, { onFinish, step: 1 });
+  beforeAnimate: AnimationCallback = (data, onFinish) => {
+    onFinish();
+    return this.renderAnimation(data, { onFinish });
   };
 
   animate: AnimationCallback = (data, onFinish) => {
     return this.renderAnimation(data, { onFinish, step: 0 });
+  };
+
+  afterAnimate: AnimationCallback = (data, onFinish) => {
+    return this.renderAnimation(data, { onFinish, step: 1 });
   };
 
   render() {
@@ -118,6 +123,7 @@ export default class CircleExpand extends React.Component<CircleExpandProps> {
         data={{
           action: CollectorActions.animation,
           payload: {
+            beforeAnimate: this.beforeAnimate,
             animate: this.animate,
             afterAnimate: this.afterAnimate,
           },
