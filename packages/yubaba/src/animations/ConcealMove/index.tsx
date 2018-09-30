@@ -97,8 +97,7 @@ targetElement was missing.`);
   };
 
   beforeAnimate: AnimationCallback = (data, onFinish) => {
-    requestAnimationFrame(() => requestAnimationFrame(onFinish));
-
+    onFinish();
     return this.renderAnimation(data);
   };
 

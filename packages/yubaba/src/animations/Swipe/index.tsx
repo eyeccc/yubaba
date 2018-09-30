@@ -72,8 +72,7 @@ export default class Swipe extends React.Component<SwipeProps> {
   };
 
   beforeAnimate: AnimationCallback = (_, onFinish) => {
-    requestAnimationFrame(onFinish);
-
+    onFinish();
     return this.renderAnimation({ onFinish, step: undefined });
   };
 

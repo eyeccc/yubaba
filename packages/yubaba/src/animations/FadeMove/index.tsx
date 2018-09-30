@@ -91,7 +91,7 @@ export default class FadeMove extends React.Component<FadeMoveProps> {
   };
 
   beforeAnimate: AnimationCallback = (data, onFinish) => {
-    requestAnimationFrame(onFinish);
+    onFinish();
     return this.renderAnimation(data);
   };
 

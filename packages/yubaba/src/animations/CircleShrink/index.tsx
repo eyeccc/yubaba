@@ -91,8 +91,7 @@ export default class CircleShrink extends React.Component<CircleShrinkProps> {
   };
 
   beforeAnimate: AnimationCallback = (data, onFinish) => {
-    requestAnimationFrame(() => onFinish());
-
+    onFinish();
     return this.renderAnimation(data, { onFinish });
   };
 
