@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { storiesOf } from '@storybook/react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { Toggler } from 'yubaba-common';
 import Baba from '../../Baba';
-import Collector from '../../Collector';
+import Noop from '../Noop';
 import Target from '../../Target';
 import RevealMove from './index';
 
@@ -116,7 +116,7 @@ const build = (
 
         {shown && (
           <Baba name={`reveal-move-${orientation}-${appearance}-${useClipPath}`}>
-            <Collector>
+            <Noop>
               {baba => (
                 <TallListItem
                   width={width}
@@ -138,7 +138,7 @@ const build = (
                   </Target>
                 </TallListItem>
               )}
-            </Collector>
+            </Noop>
           </Baba>
         )}
       </React.Fragment>
