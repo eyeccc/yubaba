@@ -30,16 +30,23 @@ export interface RevealProps extends CollectorChildrenProps {
   timingFunction: string;
 
   /**
-   * ??? Does this work.
+   * Set to false to disable transforming the children to the X position of the focal element.
    * Defaults to true.
    */
-  childrenTransformX?: boolean;
+  childrenTransformX: boolean;
 
   /**
-   * ??? Does this work.
+   * Set to false to disable transforming the children to the Y position of the focal element.
    * Defaults to `true`.
    */
-  childrenTransformY?: boolean;
+  childrenTransformY: boolean;
+
+  /**
+   * Will transition using clip-path over height and width.
+   * This results in a more resilient transition since page flow isn't affected at the cost of browser support.
+   * See: https://caniuse.com/#feat=css-clip-path
+   */
+  useClipPath?: boolean;
 }
 
 /**
@@ -59,7 +66,7 @@ export default class Reveal extends React.Component<RevealProps> {
 targetElement was missing.`);
     }
 
-    const { childrenTransformX, childrenTransformY } = this.props;
+    const { childrenTransformX, childrenTransformY, useClipPath } = this.props;
 
     const offsetChildrenX = childrenTransformX
       ? data.toTarget.targetDOMData.location.left - data.toTarget.location.left
@@ -68,16 +75,26 @@ targetElement was missing.`);
       ? data.toTarget.targetDOMData.location.top - data.toTarget.location.top
       : 0;
 
+    const revealStyles = useClipPath
+      ? {
+          clipPath: `inset(0 ${data.toTarget.size.width -
+            data.toTarget.targetDOMData.size.width}px ${data.toTarget.size.height -
+            data.toTarget.targetDOMData.size.height}px 0)`,
+        }
+      : {
+          height: data.toTarget.targetDOMData.size.height,
+          width: data.toTarget.targetDOMData.size.width,
+        };
+
     setTargetProps({
       style: prevStyles =>
         data.toTarget.targetDOMData
           ? {
               ...prevStyles,
+              ...revealStyles,
               opacity: 1,
               visibility: 'visible',
-              willChange: combine('height, width')(prevStyles.willChange),
-              height: data.toTarget.targetDOMData.size.height,
-              width: data.toTarget.targetDOMData.size.width,
+              willChange: combine('height, width, clip-path')(prevStyles.willChange),
               overflow: 'hidden',
             }
           : undefined,
@@ -95,15 +112,23 @@ targetElement was missing.`);
   };
 
   animate: AnimationCallback = (data, onFinish, setTargetProps) => {
-    const { timingFunction, duration } = this.props;
+    const { timingFunction, duration, useClipPath } = this.props;
+
+    const revealStyles = useClipPath
+      ? {
+          clipPath: 'inset(0 0 0 0)',
+        }
+      : {
+          height: data.toTarget.size.height,
+          width: data.toTarget.size.width,
+        };
 
     setTargetProps({
       style: prevStyles => ({
         ...prevStyles,
-        height: data.toTarget.size.height,
-        width: data.toTarget.size.width,
+        ...revealStyles,
         transition: combine(
-          `height ${duration}ms ${timingFunction}, width ${duration}ms ${timingFunction}`
+          `height ${duration}ms ${timingFunction}, width ${duration}ms ${timingFunction}, clip-path ${duration}ms ${timingFunction}`
         )(prevStyles.transition),
       }),
       className: () =>

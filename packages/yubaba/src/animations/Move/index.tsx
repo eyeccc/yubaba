@@ -37,13 +37,13 @@ export interface MoveProps extends CollectorChildrenProps {
   useFocalElement: boolean;
 
   /**
-   * ??? Does this work.
+   * Set to false to disable transforming the origin to the X position of the destination element.
    * Defaults to true.
    */
   transformX?: boolean;
 
   /**
-   * ??? Does this work.
+   * Set to false to disable transforming the origin to the Y position of the destination element.
    * Defaults to `true`.
    */
   transformY?: boolean;
